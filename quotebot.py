@@ -146,8 +146,26 @@ async def echoreply(context):
     #message = await context.channel.fetch_message(context.message.reference.message_id)
     #await context.send(message.content)
 
+celebQuoteFile = "./QuoteStore/famousquotes.txt"
+celebdatabase = open(celebQuoteFile)
+celebquotearray = celebdatabase.readlines()
+celebdatabase.close
 
+def getCelebQuote():
+    quoteArrayLen = len(celebquotearray)
+    randIndex = random.randrange(0, (quoteArrayLen), 2)
+    quoteText = celebquotearray[randIndex]
+    quoteAuthor = celebquotearray[randIndex + 1]
+    finalQuote = "> " + quoteText + "        - *" + quoteAuthor.strip() + "*"
+    return finalQuote
     
+
+@bot.command
+@lightbulb.command('celebquote', 'Print a famous quote.', aliases=["famousquote"])
+@lightbulb.implements(lightbulb.PrefixCommand)
+async def celebquote(context):
+    # await bot.rest.create_message(context.get_channel().id, "> " + getCelebQuote())
+    await bot.rest.create_message(context.get_channel().id, getCelebQuote())
 
 # if valid event, give a reply to "quote"
 # @bot.listen(hikari.GuildMessageCreateEvent)
