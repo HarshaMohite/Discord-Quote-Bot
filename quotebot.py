@@ -55,15 +55,39 @@ def writeNewQuote(quotetext):
     database.close
     return True
 
+
+regquote_duplicateTracker = [-1, -1, -1, -1, -1] # make this as long as the buffer size
+regquote_duplicateBufferSize = 5; # how many queries before a duplicate is allowed to return
+regquote_duplicateCurrentIndex = 0
+
 #grab a random quote
 def getQuote():
     quoteArrayLen = len(quotearray)
+    
+    # declare global, since these are assigned later
+    global regquote_duplicateCurrentIndex
+    global regquote_duplicateTracker
+    
     if len == 0: # todo: these checks currently do not work, but no crashes occur
         return "No quotes."
     if len == -1:
         return "No quotes."
     else:
-        return quotearray[random.randrange(0, (quoteArrayLen), 1)]
+        # generate unique random number
+        randNum = random.randrange(0, (quoteArrayLen), 1)
+        while randNum in regquote_duplicateTracker: # if not unique in the last x attempts, re-roll
+            randNum = random.randrange(0, (quoteArrayLen), 1)
+            
+        # manage duplicate tracker variables
+        #global regquote_duplicateTracker
+        #global regquote_duplicateCurrentIndex
+        #global regquote_duplicateCurrentIndex
+        regquote_duplicateTracker[regquote_duplicateCurrentIndex] = randNum
+        regquote_duplicateCurrentIndex = regquote_duplicateCurrentIndex + 1
+        if (regquote_duplicateCurrentIndex >= regquote_duplicateBufferSize):
+            regquote_duplicateCurrentIndex = 0
+        return quotearray[randNum]
+
 
 # Get multiple quotes.
 # Option - Amount: Print this many random quotes. Max 10.
@@ -151,9 +175,28 @@ celebdatabase = open(celebQuoteFile)
 celebquotearray = celebdatabase.readlines()
 celebdatabase.close
 
+
+celebquote_duplicateTracker = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1] # make this as long as the buffer size
+celebquote_duplicateBufferSize = 10; # how many queries before a duplicate is allowed to return
+celebquote_duplicateCurrentIndex = 0
+
+
 def getCelebQuote():
     quoteArrayLen = len(celebquotearray)
+    
+    # get random number that's not a duplicate of the last 10
     randIndex = random.randrange(0, (quoteArrayLen), 2)
+    while randIndex in regquote_duplicateTracker: # if not unique in the last x attempts, re-roll
+        randIndex = random.randrange(0, (quoteArrayLen), 2)
+    
+    # update duplicate tracking variables
+    global celebquote_duplicateCurrentIndex
+    global celebquote_duplicateTracker
+    celebquote_duplicateTracker[celebquote_duplicateCurrentIndex] = randIndex
+    celebquote_duplicateCurrentIndex = celebquote_duplicateCurrentIndex + 1
+    if (celebquote_duplicateCurrentIndex >= celebquote_duplicateBufferSize):
+        celebquote_duplicateCurrentIndex = 0
+    print(celebquote_duplicateTracker)
     quoteText = celebquotearray[randIndex]
     quoteAuthor = celebquotearray[randIndex + 1]
     finalQuote = "> " + quoteText + "        - *" + quoteAuthor.strip() + "*"
