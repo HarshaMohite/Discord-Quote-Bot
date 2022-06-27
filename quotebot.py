@@ -60,6 +60,8 @@ def getQuote():
     quoteArrayLen = len(quotearray)
     if len == 0:
         return "No quotes."
+    if len == -1:
+        return "No quotes."
     else:
         return quotearray[random.randrange(0, (quoteArrayLen), 1)]
 
