@@ -58,7 +58,10 @@ def writeNewQuote(quotetext):
 #grab a random quote
 def getQuote():
     quoteArrayLen = len(quotearray)
-    return quotearray[random.randrange(0, (quoteArrayLen), 1)]
+    if len == 0:
+        return "No quotes."
+    else:
+        return quotearray[random.randrange(0, (quoteArrayLen), 1)]
 
 # Get multiple quotes.
 # Option - Amount: Print this many random quotes. Max 10.
@@ -101,16 +104,18 @@ async def quote(context):
 async def newquote(context):
     if writeNewQuote(context.options.quote):
         await context.respond("Quote added: " + context.options.quote)
+        print("Quote added: " + context.options.quote)
     else:
         await context.respond("Quote invalid.")
     
 @bot.command
-@lightbulb.option('quote', 'Quote to be added.', type=str)
+@lightbulb.option('quote', 'Quote to be added.', type=str, modifier=lightbulb.OptionModifier.CONSUME_REST)
 @lightbulb.command('newquote', 'Adds new quote.', aliases=["addquote"])
 @lightbulb.implements(lightbulb.PrefixCommand)
 async def newquote(context):
     if writeNewQuote(context.options.quote):
         await bot.rest.create_message(context.get_channel().id, "Quote added: " + context.options.quote)
+        print("Quote added: " + context.options.quote)
     else:
         await bot.rest.create_message(context.get_channel().id, "Quote invalid. Already in database or includes a bot command.")
 
