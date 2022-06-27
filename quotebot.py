@@ -58,7 +58,7 @@ def writeNewQuote(quotetext):
 #grab a random quote
 def getQuote():
     quoteArrayLen = len(quotearray)
-    if len == 0:
+    if len == 0: # todo: these checks currently do not work, but no crashes occur
         return "No quotes."
     if len == -1:
         return "No quotes."
@@ -103,7 +103,7 @@ async def quote(context):
 @lightbulb.option('quote', 'Quote to be added.', type=str)
 @lightbulb.command('newquote', 'Adds new quote.', aliases=["addquote"])
 @lightbulb.implements(lightbulb.SlashCommand)
-async def newquote(context):
+async def newquote(context):        
     if writeNewQuote(context.options.quote):
         await context.respond("Quote added: " + context.options.quote)
         print("Quote added: " + context.options.quote)
@@ -111,16 +111,43 @@ async def newquote(context):
         await context.respond("Quote invalid.")
     
 @bot.command
-@lightbulb.option('quote', 'Quote to be added.', type=str, modifier=lightbulb.OptionModifier.CONSUME_REST)
+@lightbulb.option('quote', 'Quote to be added.', type=str, modifier=lightbulb.OptionModifier.CONSUME_REST, required=False)
 @lightbulb.command('newquote', 'Adds new quote.', aliases=["addquote"])
 @lightbulb.implements(lightbulb.PrefixCommand)
-async def newquote(context):
-    if writeNewQuote(context.options.quote):
-        await bot.rest.create_message(context.get_channel().id, "Quote added: " + context.options.quote)
+async def newquote(context):        
+    newQuoteWritten = False # outcome of writeNewQuote
+    newQuoteText = ""
+    if context.event.message.referenced_message != None: # see if quote is from a replied message
+        newQuoteText = context.event.message.referenced_message.content
+        newQuoteWritten = writeNewQuote(newQuoteText)
+    else: # otherwise, take text like normal
+        if context.options.quote == None:
+            return
+        else:
+            newQuoteText = context.options.quote
+            newQuoteWritten = writeNewQuote(newQuoteText)
+        
+    if newQuoteWritten:
+        await bot.rest.create_message(context.get_channel().id, "Quote added: " + newQuoteText)
         print("Quote added: " + context.options.quote)
     else:
         await bot.rest.create_message(context.get_channel().id, "Quote invalid. Already in database or includes a bot command.")
+    
 
+
+@bot.command
+@lightbulb.command('echoreply', 'Echo the reply')
+@lightbulb.implements(lightbulb.PrefixCommand)
+async def echoreply(context):
+    if context.event.message.referenced_message != None:
+        print(context.event.message.referenced_message.content)
+    else:
+        print("No reply found")
+    #message = await context.channel.fetch_message(context.message.reference.message_id)
+    #await context.send(message.content)
+
+
+    
 
 # if valid event, give a reply to "quote"
 # @bot.listen(hikari.GuildMessageCreateEvent)
