@@ -40,6 +40,10 @@ def writeNewQuote(quotetext):
         return False
     if ".newquote" in quotetext.lower():
         return False
+    if ".famousquote" in quotetext.lower():
+        return False
+    if ".celebquote" in quotetext.lower():
+        return False
     if "!quote" in quotetext.lower():
         return False
     if "!addquote" in quotetext.lower():
@@ -196,7 +200,6 @@ def getCelebQuote():
     celebquote_duplicateCurrentIndex = celebquote_duplicateCurrentIndex + 1
     if (celebquote_duplicateCurrentIndex >= celebquote_duplicateBufferSize):
         celebquote_duplicateCurrentIndex = 0
-    print(celebquote_duplicateTracker)
     quoteText = celebquotearray[randIndex]
     quoteAuthor = celebquotearray[randIndex + 1]
     finalQuote = "> " + quoteText + "        - *" + quoteAuthor.strip() + "*"
